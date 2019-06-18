@@ -17,7 +17,7 @@ pipeline {
         DYNATRACEAPIKEY = "${env.DT_API_TOKEN}"
         NLAPIKEY = "${env.NL_WEB_API_KEY}"
         OUTPUTSANITYCHECK = "$WORKSPACE/infrastructure/sanitycheck.json"
-        DYNATRACEPLUGINPATH = "$WORKSPACE/lib/DynatraceIntegration-4.0.2-BETA2.jar"
+        DYNATRACEPLUGINPATH = "$WORKSPACE/lib/DynatraceIntegration-4.0.3-BETA3.jar"
         GROUP = "neotysdevopsdemo"
         COMMIT = "DEV-${VERSION}"
 
@@ -205,11 +205,7 @@ pipeline {
         }
 
         stage('Mark artifact for staging namespace') {
-            when {
-                expression {
-                    return env.BRANCH_NAME ==~ 'release/.*'
-                }
-            }
+
             steps {
 
                 withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'TOKEN', usernameVariable: 'USER')]) {
