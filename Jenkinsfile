@@ -65,11 +65,7 @@ pipeline {
                }
 
         stage('Deploy to dev ') {
-            when {
-                expression {
-                    return env.BRANCH_NAME ==~ 'release/.*' || env.BRANCH_NAME ==~ 'master'
-                }
-            }
+
             steps {
                 sh "sed -i 's,TAG_TO_REPLACE,${TAG_DEV},' $WORKSPACE/docker-compose.yml"
                 sh "sed -i 's,TO_REPLACE,${APP_NAME},' $WORKSPACE/docker-compose.yml"
