@@ -17,7 +17,11 @@ pipeline {
         DYNATRACEAPIKEY = "${env.DT_API_TOKEN}"
         NLAPIKEY = "${env.NL_WEB_API_KEY}"
         OUTPUTSANITYCHECK = "$WORKSPACE/infrastructure/sanitycheck.json"
+
         DYNATRACEPLUGINPATH = "$WORKSPACE/lib/DynatraceIntegration-3.0.1-SNAPSHOT.jar"
+        DOCKER_COMPOSE_TEMPLATE="$WORKSPACE/infrastructure/infrastructure/neoload/docker-compose.template"
+        DOCKER_COMPOSE_LG_FILE = "$WORKSPACE/infrastructure/infrastructure/neoload/docker-compose-neoload.yml"
+
         GROUP = "neotysdevopsdemo"
         COMMIT = "DEV-${VERSION}"
 
@@ -52,7 +56,13 @@ pipeline {
 
             }
         }
+       stage('create docker netwrok') {
 
+                              steps {
+                                   sh "docker network create ${APP_NAME} || true"
+
+                              }
+               }
 
         stage('Deploy to dev ') {
             when {
@@ -62,6 +72,7 @@ pipeline {
             }
             steps {
                 sh "sed -i 's,TAG_TO_REPLACE,${TAG_DEV},' $WORKSPACE/docker-compose.yml"
+                sh "sed -i 's,TO_REPLACE,${APP_NAME},' $WORKSPACE/docker-compose.yml"
                 sh 'docker-compose -f $WORKSPACE/docker-compose.yml up -d'
 
             }
@@ -90,105 +101,37 @@ pipeline {
       }
     }*/
         stage('Start NeoLoad infrastructure') {
-            steps {
-                sh 'docker-compose -f $WORKSPACE/infrastructure/infrastructure/neoload/lg/doker-compose.yml up -d'
 
-            }
+                           steps {
+                                      sh "cp -f ${DOCKER_COMPOSE_LG_TEMPLATE_FILE} ${DOCKER_COMPOSE_LG_FILE}"
+                                      sh "sed -i 's,TO_REPLACE,${APP_NAME},'  ${DOCKER_COMPOSE_LG_FILE}"
+                                      sh "sed -i 's,TOKEN_TOBE_REPLACE,$NLAPIKEY,'  ${DOCKER_COMPOSE_LG_FILE}"
+                                      sh 'docker-compose -f ${DOCKER_COMPOSE_LG_FILE} up -d'
+                                      sleep 15
 
-        }
-        stage('Join Load Generators to Application') {
-            steps {
-                sh 'docker network connect carts_master_default docker-lg1'
-            }
-        }
-        stage('Run health check in dev') {
-            agent {
-                dockerfile {
-                    args '--user root -v /tmp:/tmp --network=carts_master_default'
-                    dir 'infrastructure/infrastructure/neoload/controller'
-                    reuseNode true
-                }
-            }
+                                  }
+
+                      }
 
 
-            steps {
-
-
-                echo "Waiting for the service to start..."
-                sleep 250
-                script {
-                    neoloadRun executable: '/home/neoload/neoload/bin/NeoLoadCmd',
-                            project: "$WORKSPACE/target/neoload/Carts_NeoLoad/Carts_NeoLoad.nlp",
-                            testName: 'HealthCheck_carts_${VERSION}_${BUILD_NUMBER}',
-                            testDescription: 'HealthCheck_carts_${VERSION}_${BUILD_NUMBER}',
-                            commandLineOption: "-nlweb -L Population_BasicCheckTesting=$WORKSPACE/infrastructure/infrastructure/neoload/lg/remote.txt -L Population_Dynatrace_Integration=$WORKSPACE/infrastructure/infrastructure/neoload/lg/local.txt  -nlwebToken $NLAPIKEY -variables host=carts,port=80,basicPath=/health",
-                            scenario: 'DynatraceSanityCheck', sharedLicense: [server: 'NeoLoad Demo License', duration: 2, vuCount: 200],
-                            trendGraphs: [
-                                    [name: 'Limit test Check API Response time', curve: ['BasicCheckTesting>Actions>BasicCheck'], statistic: 'average'],
-                                    'ErrorRate'
-                            ]
-                }
-
-
-            }
-        }
-        stage('Sanity Check') {
-            agent {
-                dockerfile {
-                    args '--user root -v /tmp:/tmp --network=carts_master_default'
-                    dir 'infrastructure/infrastructure/neoload/controller'
-                    reuseNode true
-                }
-            }
-            steps {
-                script {
-                    neoloadRun executable: '/home/neoload/neoload/bin/NeoLoadCmd',
-                            project: "$WORKSPACE/target/neoload/Carts_NeoLoad/Carts_NeoLoad.nlp",
-                            testName: 'DynatraceSanityCheck_carts_${VERSION}_${BUILD_NUMBER}',
-                            testDescription: 'DynatraceSanityCheck_carts_${VERSION}_${BUILD_NUMBER}',
-                            commandLineOption: "-nlweb -L  Population_Dynatrace_SanityCheck=$WORKSPACE/infrastructure/infrastructure/neoload/lg/local.txt -nlwebToken $NLAPIKEY -variables host=carts,port=80",
-                            scenario: 'DYNATRACE_SANITYCHECK', sharedLicense: [server: 'NeoLoad Demo License', duration: 2, vuCount: 200],
-                            trendGraphs: [
-                                                      'ErrorRate'
-                            ]
-                }
-
-
-
-                echo "push ${OUTPUTSANITYCHECK}"
-                //---add the push of the sanity check---
-                withCredentials([usernamePassword(credentialsId: 'git-credentials', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                    sh "git config --global user.email ${env.GITHUB_USER_EMAIL}"
-                    sh "git config remote.origin.url https://github.com/${env.GITHUB_ORGANIZATION}/carts"
-                    sh "git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/*"
-                    sh "git config remote.origin.url https://github.com/${env.GITHUB_ORGANIZATION}/carts"
-                  //  sh "git add ${OUTPUTSANITYCHECK}"
-                   // sh "git commit -m 'Update Sanity_Check_${BUILD_NUMBER} ${env.APP_NAME} '"
-                    //  sh "git pull -r origin master"
-                    //#TODO handle this exeption
-                 //   sh "git push origin HEAD:master"
-
-                }
-
-            }
-        }
         stage('Run functional check in dev') {
-            when {
-                expression {
-                    return env.BRANCH_NAME ==~ 'release/.*' || env.BRANCH_NAME ==~ 'master'
-                }
-            }
-            agent {
-                dockerfile {
-                    args '--user root -v /tmp:/tmp --network=carts_master_default'
-                    dir 'infrastructure/infrastructure/neoload/controller'
-                    reuseNode true
-                }
-            }
+
 
             steps {
-                script {
-                    neoloadRun executable: '/home/neoload/neoload/bin/NeoLoadCmd',
+
+                  sleep 90
+                  sh "docker run --rm \
+                                     -v $WORKSPACE/target/neoload/Carts_NeoLoad/:/neoload-project \
+                                     -e NEOLOADWEB_TOKEN=$NLAPIKEY \
+                                     -e TEST_RESULT_NAME=FuncCheck_carts__${VERSION}_${BUILD_NUMBER} \
+                                     -e SCENARIO_NAME=Cart_Load \
+                                     -e CONTROLLER_ZONE_ID=defaultzone \
+                                     -e LG_ZONE_IDS=defaultzone:1 \
+                                     --network ${APP_NAME} \
+                                      neotys/neoload-web-test-launcher:latest"
+
+
+                    /*neoloadRun executable: '/home/neoload/neoload/bin/NeoLoadCmd',
                             project: "$WORKSPACE/target/neoload/Carts_NeoLoad/Carts_NeoLoad.nlp",
                             testName: 'FuncCheck_carts__${VERSION}_${BUILD_NUMBER}',
                             testDescription: 'FuncCheck_carts__${VERSION}_${BUILD_NUMBER}',
@@ -197,8 +140,8 @@ pipeline {
                             trendGraphs: [
                                     [name: 'Limit test Carts API Response time', curve: ['AddItemToCart>Actions>AddItemToCart'], statistic: 'average'],
                                     'ErrorRate'
-                            ]
-                }
+                            ]*/
+
 
 
             }
