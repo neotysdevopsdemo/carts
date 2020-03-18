@@ -77,7 +77,6 @@ pipeline {
         stage('Start NeoLoad infrastructure') {
 
                            steps {
-                                      echo ${DOCKER_COMPOSE_TEMPLATE}
                                       sh "cp -f ${DOCKER_COMPOSE_TEMPLATE} ${DOCKER_COMPOSE_LG_FILE}"
                                       sh "sed -i 's,TO_REPLACE,${APP_NAME},'  ${DOCKER_COMPOSE_LG_FILE}"
                                       sh "sed -i 's,TOKEN_TOBE_REPLACE,$NLAPIKEY,'  ${DOCKER_COMPOSE_LG_FILE}"
