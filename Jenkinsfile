@@ -94,6 +94,8 @@ pipeline {
             steps {
 
                   sleep 90
+
+                  sh "docker pull   neotys/neoload-web-test-launcher:latest"
                   sh "docker run --rm \
                                      -v $WORKSPACE/target/neoload/Carts_NeoLoad/:/neoload-project \
                                      -e NEOLOADWEB_TOKEN=$NLAPIKEY \
