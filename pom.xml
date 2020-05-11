@@ -27,7 +27,6 @@
         <dynatraceApiKey>aZMHwCI3QKe7YhK7MmEGC</dynatraceApiKey>
         <tags>carts</tags>
         <outPutReferenceFile>/home/hrexed/dynatrace_smarscape.json</outPutReferenceFile>
-        <dataExchangeApiUrl>http://localhost:7400/DataExchange/v1/Service.svc/</dataExchangeApiUrl>
         <jsonAnomalieDetectionFile></jsonAnomalieDetectionFile>
         <customActionPath>lib/DynatraceIntegration-3.0.1-SNAPSHOT.jar</customActionPath>
     </properties>
@@ -126,7 +125,6 @@
                 <configuration>
 
                     <systemPropertyVariables>
-                        <dataExchangeApiUrl>${dataExchangeApiUrl}</dataExchangeApiUrl>
                         <customActionPath>${customActionPath}</customActionPath>
                         <dynatraceApiKey>${dynatraceApiKey}</dynatraceApiKey>
                         <dynatraceId>${dynatraceId}</dynatraceId>
