@@ -13,12 +13,12 @@ pipeline {
         NL_DT_TAG = "app:${env.APP_NAME},environment:dev"
         CARTS_ANOMALIEFILE = "$WORKSPACE/monspec/carts_anomalieDection.json"
         TAG_STAGING = "${TAG}-stagging:${VERSION}"
-        DYNATRACEID = "${env.DT_ACCOUNTID}.live.dynatrace.com"
+        DYNATRACEID = "https://${env.DT_ACCOUNTID}.live.dynatrace.com/"
         DYNATRACEAPIKEY = "${env.DT_API_TOKEN}"
         NLAPIKEY = "${env.NL_WEB_API_KEY}"
+        NLAPI=
         OUTPUTSANITYCHECK = "$WORKSPACE/infrastructure/sanitycheck.json"
 
-        DYNATRACEPLUGINPATH = "$WORKSPACE/lib/DynatraceIntegration-3.0.1-SNAPSHOT.jar"
         DOCKER_COMPOSE_TEMPLATE="$WORKSPACE/infrastructure/infrastructure/neoload/docker-compose.template"
         DOCKER_COMPOSE_LG_FILE = "$WORKSPACE/infrastructure/infrastructure/neoload/docker-compose-neoload.yml"
 
@@ -30,15 +30,16 @@ pipeline {
         stage('Checkout') {
             agent { label 'master' }
             steps {
+
                 git  url:"https://github.com/${GROUP}/${APP_NAME}.git",
                         branch :'master'
+
             }
         }
         stage('Maven build') {
             steps {
-                sh "mvn -B clean package -DdynatraceId=$DYNATRACEID -DneoLoadWebAPIKey=$NLAPIKEY -DdynatraceApiKey=$DYNATRACEAPIKEY -Dtags=${NL_DT_TAG} -DoutPutReferenceFile=$OUTPUTSANITYCHECK -DcustomActionPath=$DYNATRACEPLUGINPATH -DjsonAnomalieDetectionFile=$CARTS_ANOMALIEFILE"
-                // cette ligne est pour license ...mais il me semble que tu as license avec ton container  sh "chmod -R 777 $WORKSPACE/target/neoload/"
-            }
+                sh "mvn -B clean package -DdynatraceURL=$DYNATRACEID -DneoLoadWebAPIKey=$NLAPIKEY -DdynatraceApiKey=$DYNATRACEAPIKEY -DdynatraceTags=${NL_DT_TAG}  -DjsonAnomalieDetectionFile=$CARTS_ANOMALIEFILE"
+             }
         }
         stage('Docker build') {
             when {
@@ -87,41 +88,76 @@ pipeline {
 
                       }
 
-
-        stage('Run functional check in dev') {
-
-
-            steps {
-
-                  sleep 90
-
-                  sh "docker pull neotys/neoload-web-test-launcher:latest"
-                  sh "ls -al $WORKSPACE/target/neoload/Carts_NeoLoad/"
-                  sh "docker run --rm \
-                                     -v $WORKSPACE/target/neoload/Carts_NeoLoad/:/neoload-project \
-                                     -e NEOLOADWEB_TOKEN=$NLAPIKEY \
-                                     -e TEST_RESULT_NAME=FuncCheck_carts__${VERSION}_${BUILD_NUMBER} \
-                                     -e SCENARIO_NAME=Cart_Load \
-                                     -e CONTROLLER_ZONE_ID=defaultzone \
-                                     -e LG_ZONE_IDS=defaultzone:1 \
-                                     --network ${APP_NAME} --user root\
-                                      neotys/neoload-web-test-launcher:latest"
-
-
-                    /*neoloadRun executable: '/home/neoload/neoload/bin/NeoLoadCmd',
-                            project: "$WORKSPACE/target/neoload/Carts_NeoLoad/Carts_NeoLoad.nlp",
-                            testName: 'FuncCheck_carts__${VERSION}_${BUILD_NUMBER}',
-                            testDescription: 'FuncCheck_carts__${VERSION}_${BUILD_NUMBER}',
-                            commandLineOption: "-nlweb Population_AddItemToCart=$WORKSPACE/infrastructure/infrastructure/neoload/lg/remote.txt -L Population_Dynatrace_Integration=$WORKSPACE/infrastructure/infrastructure/neoload/lg/local.txt  -nlwebToken $NLAPIKEY -variables carts_host=carts,carts_port=80",
-                            scenario: 'Cart_Load', sharedLicense: [server: 'NeoLoad Demo License', duration: 2, vuCount: 200],
-                            trendGraphs: [
-                                    [name: 'Limit test Carts API Response time', curve: ['AddItemToCart>Actions>AddItemToCart'], statistic: 'average'],
-                                    'ErrorRate'
-                            ]*/
-
-
+        stage('NeoLoad Test')
+        {
+         agent {
+         docker {
+             image 'python:3-alpine'
+             reuseNode true
+          }
 
             }
+        stages {
+             stage('Get NeoLoad CLI') {
+                          steps {
+                            withEnv(["HOME=${env.WORKSPACE}"]) {
+
+                             sh '''
+                                  export PATH=~/.local/bin:$PATH
+                                  pip3 install neoload
+                                  neoload --version
+                              '''
+
+                            }
+                          }
+            }
+             stage('Run functional check in dev') {
+
+
+                steps {
+
+                      sleep 90
+
+
+                     sh """
+                             export PATH=~/.local/bin:$PATH
+                             neoload \
+                             login --workspace "Default Workspace" $NLAPIKEY \
+                             test-settings  --zone defaultzone --scenario Cart_Load use CartDynatrace \
+                             project --path $WORKSPACE/target/neoload/Carts_NeoLoad/ upload
+                        """
+
+
+                }
+            }
+             stage('Run Test') {
+                  steps {
+                    withEnv(["HOME=${env.WORKSPACE}"]) {
+                      sh """
+                           export PATH=~/.local/bin:$PATH
+                           neoload run \
+                          --return-0 \
+                           CartDynatrace
+                         """
+                    }
+                  }
+            }
+             stage('Generate Test Report') {
+                      steps {
+                        withEnv(["HOME=${env.WORKSPACE}"]) {
+                            sh """
+                                 export PATH=~/.local/bin:$PATH
+                                 neoload test-results junitsla
+                               """
+                        }
+                      }
+                      post {
+                          always {
+                              junit 'junit-sla.xml'
+                          }
+                      }
+            }
+        }
         }
 
         stage('Mark artifact for staging namespace') {
@@ -136,6 +172,7 @@ pipeline {
 
             }
         }
+
     }
     post {
 
