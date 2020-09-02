@@ -114,7 +114,7 @@ pipeline {
 
 
                 steps {
-
+                     withEnv(["HOME=${env.WORKSPACE}"]) {
                       sleep 90
 
 
@@ -125,7 +125,7 @@ pipeline {
                              test-settings  --zone defaultzone --scenario Cart_Load create CartDynatrace \
                              project --path $WORKSPACE/target/neoload/Carts_NeoLoad/ upload
                         """
-
+                    }
 
                 }
             }
