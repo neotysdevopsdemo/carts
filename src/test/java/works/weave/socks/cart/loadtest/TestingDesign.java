@@ -3,8 +3,7 @@ package works.weave.socks.cart.loadtest;
 import com.neotys.neoload.model.v3.project.variable.ConstantVariable;
 import com.neotys.neoload.model.v3.project.variable.Variable;
 import com.neotys.testing.framework.BaseNeoLoadDesign;
-import com.neotys.testing.framework.plugin.apm.DynatraceIntegration;
-import com.neotys.testing.framework.plugin.apm.sanityCheck.DynatraceSanityCheck;
+
 
 import java.io.FileNotFoundException;
 import java.nio.file.Paths;
@@ -20,9 +19,7 @@ public class TestingDesign extends BaseNeoLoadDesign {
     @java.lang.Override
     public void createNeoLoadUserPaths() {
         this.addVirtualUser(new BasicUserPath(this));
-        this.addVirtualUser(new DynatraceSanityCheck(this));
         this.addVirtualUser(new AddItemUserPath(this));
-        this.addVirtualUser(new DynatraceIntegration(this));
 
     }
 

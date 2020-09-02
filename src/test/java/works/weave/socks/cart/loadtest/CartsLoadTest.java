@@ -35,8 +35,16 @@ public class CartsLoadTest extends NeoLoadTest {
     @Override
     public void execute() {
 
-        createSimpleConstantLoadScenario("Cart_Load","AddItemToCart",600,49,10, Optional.empty());
-        createSimpleConstantIterationScenario("DynatraceSanityCheck","BasicCheckTesting",5,1,0,Optional.empty());
-        createSanityCheckScenario();
+        try {
+            createSimpleConstantLoadScenario("Cart_Load","AddItemToCart",600,49,10, Optional.empty());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+            createSimpleConstantIterationScenario("DynatraceSanityCheck","BasicCheckTesting",5,1,0,Optional.empty());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 }
