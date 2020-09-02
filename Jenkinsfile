@@ -16,7 +16,6 @@ pipeline {
         DYNATRACEID = "https://${env.DT_ACCOUNTID}.live.dynatrace.com/"
         DYNATRACEAPIKEY = "${env.DT_API_TOKEN}"
         NLAPIKEY = "${env.NL_WEB_API_KEY}"
-        NLAPI=
         OUTPUTSANITYCHECK = "$WORKSPACE/infrastructure/sanitycheck.json"
 
         DOCKER_COMPOSE_TEMPLATE="$WORKSPACE/infrastructure/infrastructure/neoload/docker-compose.template"
