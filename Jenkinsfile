@@ -122,7 +122,7 @@ pipeline {
                              export PATH=~/.local/bin:$PATH
                              neoload \
                              login --workspace "Default Workspace" $NLAPIKEY \
-                             test-settings  --zone defaultzone --scenario Cart_Load use CartDynatrace \
+                             test-settings  --zone defaultzone --scenario Cart_Load create CartDynatrace \
                              project --path $WORKSPACE/target/neoload/Carts_NeoLoad/ upload
                         """
 
