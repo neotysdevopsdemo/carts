@@ -86,14 +86,7 @@ pipeline {
                                   }
 
                       }
-        stage('create traffic')
-        {
-            steps{
-                sh "curl http://${HOST}:80/"
-                sh "curl http://${HOST}:80/"
-                sh "curl http://${HOST}:80/"
-            }
-        }
+
         stage('NeoLoad Test')
         {
          agent {
