@@ -164,8 +164,7 @@ pipeline {
                           --return-0 \
                            CartDynatrace
                          """
-                     testURL=sh(" export PATH=~/.local/bin:$PATH
-                                  neoload logs-url")
+                     testURL=sh("neoload logs-url")
 
 
                     }
