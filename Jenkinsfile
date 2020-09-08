@@ -152,7 +152,7 @@ pipeline {
 
                   steps {
                         script{
-
+                            def keptn = new sh.keptn.Keptn()
                            keptn.markEvaluationStartTime
                         }
 
