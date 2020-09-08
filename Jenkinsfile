@@ -86,6 +86,7 @@ pipeline {
                      keptn.keptnInit project:"${PROJECT}", service:"${APP_NAME}", stage:"dev" , monitoring:"dynatrace"
                      keptn.keptnAddResources('keptn/sli.yaml','dynatrace/sli.yaml')
                      keptn.keptnAddResources('keptn/slo.yaml','slo.yaml')
+                     keptn.keptnAddResources('keptn/dynatrace.conf.yaml','dynatrace/dynatrace.conf.yaml')
                     }
                  }
 
