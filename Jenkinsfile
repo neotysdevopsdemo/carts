@@ -147,9 +147,15 @@ pipeline {
 
                 }
             }
+
              stage('Run Test') {
-                   keptn.markEvaluationStartTime
+
                   steps {
+                        script{
+
+                           keptn.markEvaluationStartTime
+                        }
+
                     withEnv(["HOME=${env.WORKSPACE}"]) {
 
                       sh """
@@ -170,15 +176,20 @@ pipeline {
         }
         stage('Evaluate Quality Gate')
         {
+            steps
+            {
+            script{
 
-            def labels=[:]
-            labels.put('TriggeredBy', 'PerfClinic')
-            labels.put('PoweredBy', 'The Love Of Performance')
-            labels.put('OpenNeoLoad', ${testURL})
-            def keptnContext = keptn.sendStartEvaluationEvent starttime:"", endtime:"", labels:labels
-            echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
+                def labels=[:]
+                labels.put('TriggeredBy', 'PerfClinic')
+                labels.put('PoweredBy', 'The Love Of Performance')
+                labels.put('OpenNeoLoad', ${testURL})
+                def keptnContext = keptn.sendStartEvaluationEvent starttime:"", endtime:"", labels:labels
+                echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
 
-            def result = keptn.waitForEvaluationDoneEvent setBuildResult:true
+                def result = keptn.waitForEvaluationDoneEvent setBuildResult:true
+                }
+            }
 
         }
         stage('Mark artifact for staging namespace') {
