@@ -166,7 +166,7 @@ pipeline {
                          """
 
                     }
-                    environment{
+                    script{
                      testURL=sh("URL=neoload logs-url")
                     }
                   }
