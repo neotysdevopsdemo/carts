@@ -1,7 +1,7 @@
 
 @Library('keptn-library@3.2')
 import sh.keptn.Keptn
-def keptn = new sh.keptn.Keptn()
+
 
 pipeline {
     agent  { label 'master' }
@@ -81,6 +81,7 @@ pipeline {
         stage('init keptn')
         {
             steps{
+                 def keptn = new sh.keptn.Keptn()
                  keptn.keptnInit project:"${PROJECT}", service:"${APP_NAME}", stage:"dev" , monitoring:"dynatrace"
                  keptn.keptnAddResources('keptn/sli.yaml','dynatrace/sli.yaml')
                  keptn.keptnAddResources('keptn/slo.yaml','slo.yaml')
