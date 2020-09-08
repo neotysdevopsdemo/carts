@@ -1,5 +1,5 @@
 
-@Library('keptn-library@3.2')
+@Library('keptn-library')_
 import sh.keptn.Keptn
 
 
