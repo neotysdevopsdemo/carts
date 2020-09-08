@@ -172,7 +172,7 @@ pipeline {
 
                     withEnv(["HOME=${env.WORKSPACE}"]) {
 
-                                          testURL= sh(script:'neoload logs-url'
+                                          def testURL= sh(script:'neoload logs-url'
                                                     ,returnStdout: true).trim()
 
 
