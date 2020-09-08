@@ -170,14 +170,7 @@ pipeline {
 
                     }
 
-                    withEnv(["HOME=${env.WORKSPACE}"]) {
 
-                                          def testURL= sh(script:'neoload logs-url'
-                                                    ,returnStdout: true).trim()
-
-
-
-                                        }
 
 
                   }
@@ -194,7 +187,6 @@ pipeline {
                 def labels=[:]
                 labels.put('TriggeredBy', 'PerfClinic')
                 labels.put('PoweredBy', 'The Love Of Performance')
-                labels.put('OpenNeoLoad', ${testURL})
                 def keptnContext = keptn.sendStartEvaluationEvent starttime:"", endtime:"", labels:labels
                 echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
 
