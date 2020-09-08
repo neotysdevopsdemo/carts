@@ -80,12 +80,12 @@ pipeline {
         }
         stage('init keptn')
         {
-            steps{
+
                  def keptn = new sh.keptn.Keptn()
                  keptn.keptnInit project:"${PROJECT}", service:"${APP_NAME}", stage:"dev" , monitoring:"dynatrace"
                  keptn.keptnAddResources('keptn/sli.yaml','dynatrace/sli.yaml')
                  keptn.keptnAddResources('keptn/slo.yaml','slo.yaml')
-            }
+
         }
 
         stage('Start NeoLoad infrastructure') {
@@ -145,9 +145,10 @@ pipeline {
                 }
             }
              stage('Run Test') {
+                   keptn.markEvaluationStartTime
                   steps {
                     withEnv(["HOME=${env.WORKSPACE}"]) {
-                       keptn.markEvaluationStartTime
+
                       sh """
                            export PATH=~/.local/bin:$PATH
                            neoload run \
@@ -166,7 +167,7 @@ pipeline {
         }
         stage('Evaluate Quality Gate')
         {
-            steps{
+
             def labels=[:]
             labels.put('TriggeredBy', 'PerfClinic')
             labels.put('PoweredBy', 'The Love Of Performance')
@@ -175,7 +176,7 @@ pipeline {
             echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
 
             def result = keptn.waitForEvaluationDoneEvent setBuildResult:true
-             }
+
         }
         stage('Mark artifact for staging namespace') {
 
