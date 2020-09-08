@@ -163,9 +163,10 @@ pipeline {
                            neoload run \
                           --return-0 \
                            CartDynatrace
-                         """
-                     testURL=sh("neoload logs-url")
 
+                         """
+
+                        testURL=sh("neoload logs-url")
 
                     }
 
