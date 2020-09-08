@@ -153,7 +153,7 @@ pipeline {
                   steps {
                         script{
                             def keptn = new sh.keptn.Keptn()
-                           keptn.markEvaluationStartTime
+                            keptn.markEvaluationStartTime()
                         }
 
                     withEnv(["HOME=${env.WORKSPACE}"]) {
