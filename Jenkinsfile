@@ -80,12 +80,13 @@ pipeline {
         }
         stage('init keptn')
         {
-                script{
-
-                 def keptn = new sh.keptn.Keptn()
-                 keptn.keptnInit project:"${PROJECT}", service:"${APP_NAME}", stage:"dev" , monitoring:"dynatrace"
-                 keptn.keptnAddResources('keptn/sli.yaml','dynatrace/sli.yaml')
-                 keptn.keptnAddResources('keptn/slo.yaml','slo.yaml')
+                steps{
+                    script{
+                     def keptn = new sh.keptn.Keptn()
+                     keptn.keptnInit project:"${PROJECT}", service:"${APP_NAME}", stage:"dev" , monitoring:"dynatrace"
+                     keptn.keptnAddResources('keptn/sli.yaml','dynatrace/sli.yaml')
+                     keptn.keptnAddResources('keptn/slo.yaml','slo.yaml')
+                    }
                  }
 
         }
