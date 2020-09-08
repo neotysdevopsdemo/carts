@@ -1,4 +1,8 @@
 
+@Library('keptn-library@3.2')
+import sh.keptn.Keptn
+def keptn = new sh.keptn.Keptn()
+
 pipeline {
     agent  { label 'master' }
     tools {
@@ -17,7 +21,7 @@ pipeline {
         DYNATRACEAPIKEY = "${env.DT_API_TOKEN}"
         NLAPIKEY = "${env.NL_WEB_API_KEY}"
         OUTPUTSANITYCHECK = "$WORKSPACE/infrastructure/sanitycheck.json"
-
+        PROJECT="sockshop"
         DOCKER_COMPOSE_TEMPLATE="$WORKSPACE/infrastructure/infrastructure/neoload/docker-compose.template"
         DOCKER_COMPOSE_LG_FILE = "$WORKSPACE/infrastructure/infrastructure/neoload/docker-compose-neoload.yml"
 
@@ -37,6 +41,7 @@ pipeline {
         }
         stage('Maven build') {
             steps {
+
                 sh "mvn -B clean package -DdynatraceURL=$DYNATRACEID -DneoLoadWebAPIKey=$NLAPIKEY -DdynatraceApiKey=$DYNATRACEAPIKEY -DdynatraceTags=${NL_DT_TAG}  -DjsonAnomalieDetectionFile=$CARTS_ANOMALIEFILE"
              }
         }
@@ -71,6 +76,14 @@ pipeline {
                 sh "sed -i 's,TO_REPLACE,${APP_NAME},' $WORKSPACE/docker-compose.yml"
                 sh 'docker-compose -f $WORKSPACE/docker-compose.yml up -d'
 
+            }
+        }
+        stage('init keptn')
+        {
+            steps{
+                 keptn.keptnInit project:"${PROJECT}", service:"${APP_NAME}", stage:"dev" , monitoring:"dynatrace"
+                 keptn.keptnAddResources('keptn/sli.yaml','dynatrace/sli.yaml')
+                 keptn.keptnAddResources('keptn/slo.yaml','slo.yaml')
             }
         }
 
@@ -110,6 +123,7 @@ pipeline {
                             }
                           }
             }
+
              stage('Run functional check in dev') {
 
 
@@ -132,19 +146,34 @@ pipeline {
              stage('Run Test') {
                   steps {
                     withEnv(["HOME=${env.WORKSPACE}"]) {
+                       keptn.markEvaluationStartTime
                       sh """
                            export PATH=~/.local/bin:$PATH
                            neoload run \
                           --return-0 \
                            CartDynatrace
                          """
+
+                     URL=sh("URL=neoload logs-url")
                     }
                   }
             }
 
         }
         }
+        stage('Evaluate Quality Gate')
+        {
+            steps{
+            def labels=[:]
+            labels.put('TriggeredBy', 'PerfClinic')
+            labels.put('PoweredBy', 'The Love Of Performance')
+            labels.put('OpenNeoLoad', URL)
+            def keptnContext = keptn.sendStartEvaluationEvent starttime:"", endtime:"", labels:labels
+            echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
 
+            def result = keptn.waitForEvaluationDoneEvent setBuildResult:true
+             }
+        }
         stage('Mark artifact for staging namespace') {
 
             steps {
