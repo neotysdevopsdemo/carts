@@ -166,15 +166,14 @@ pipeline {
 
                          """
 
-                        testURL=sh(script: 'neoload logs-url',
-                                         returnStdout: true)
+
 
                     }
 
                     withEnv(["HOME=${env.WORKSPACE}"]) {
 
                                           testURL= sh(script:'neoload logs-url'
-                                                    ,returnStdout: true)
+                                                    ,returnStdout: true).trim()
 
 
 
