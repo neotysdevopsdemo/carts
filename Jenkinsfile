@@ -24,7 +24,7 @@ pipeline {
         PROJECT="sockshop"
         DOCKER_COMPOSE_TEMPLATE="$WORKSPACE/infrastructure/infrastructure/neoload/docker-compose.template"
         DOCKER_COMPOSE_LG_FILE = "$WORKSPACE/infrastructure/infrastructure/neoload/docker-compose-neoload.yml"
-
+        WAIT_TIME_KEPTN=5
         GROUP = "neotysdevopsdemo"
         COMMIT = "DEV-${VERSION}"
 
@@ -191,7 +191,7 @@ pipeline {
                 def keptnContext = keptn.sendStartEvaluationEvent starttime:"", endtime:"", labels:labels
                 echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
 
-                def result = keptn.waitForEvaluationDoneEvent setBuildResult:true
+                def result = keptn.waitForEvaluationDoneEvent setBuildResult:true, waitTime:${WAIT_TIME_KEPTN}
                 }
             }
 
