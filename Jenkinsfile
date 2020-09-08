@@ -179,7 +179,7 @@ pipeline {
             steps
             {
             script{
-
+                def keptn = new sh.keptn.Keptn()
                 def labels=[:]
                 labels.put('TriggeredBy', 'PerfClinic')
                 labels.put('PoweredBy', 'The Love Of Performance')
