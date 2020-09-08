@@ -173,8 +173,7 @@ pipeline {
 
                     withEnv(["HOME=${env.WORKSPACE}"]) {
 
-                                          testURL= sh(script:'export PATH=~/.local/bin:$PATH
-                                                    neoload logs-url'
+                                          testURL= sh(script:'neoload logs-url'
                                                     ,returnStdout: true)
 
 
