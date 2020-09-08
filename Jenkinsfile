@@ -155,6 +155,8 @@ pipeline {
                            CartDynatrace
                          """
 
+                    }
+                    environment{
                      URL=sh("URL=neoload logs-url")
                     }
                   }
