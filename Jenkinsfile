@@ -166,7 +166,8 @@ pipeline {
 
                          """
 
-                        testURL=sh("neoload logs-url")
+                        testURL=sh(script: 'neoload logs-url',
+                                         returnStdout: true)
 
                     }
 
