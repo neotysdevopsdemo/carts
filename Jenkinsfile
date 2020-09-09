@@ -191,7 +191,7 @@ pipeline {
                 def keptnContext = keptn.sendStartEvaluationEvent starttime:"", endtime:"", labels:labels
                 echo "Open Keptns Bridge: ${keptn_bridge}/trace/${keptnContext}"
 
-                def result = keptn.waitForEvaluationDoneEvent setBuildResult:true, waitTime:${WAIT_TIME_KEPTN}
+                def result = keptn.waitForEvaluationDoneEvent setBuildResult:true, waitTime:"${WAIT_TIME_KEPTN}"
                 }
             }
 
