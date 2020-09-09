@@ -36,7 +36,7 @@ public class CartsLoadTest extends NeoLoadTest {
     public void execute() {
 
         try {
-            createSimpleConstantLoadScenario("Cart_Load","AddItemToCart",600,49,10, Optional.empty());
+            createSimpleConstantLoadScenario("Cart_Load","AddItemToCart",300,49,10, Optional.empty());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

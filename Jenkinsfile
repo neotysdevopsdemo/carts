@@ -14,7 +14,7 @@ pipeline {
         APP_NAME = "carts"
         TAG = "neotysdevopsdemo/${APP_NAME}"
         TAG_DEV = "${TAG}:DEV-${VERSION}"
-        NL_DT_TAG = "app:${env.APP_NAME},environment:dev"
+        NL_DT_TAG = "app:${env.APP_NAME}"
         CARTS_ANOMALIEFILE = "$WORKSPACE/monspec/carts_anomalieDection.json"
         TAG_STAGING = "${TAG}-stagging:${VERSION}"
         DYNATRACEID = "https://${env.DT_ACCOUNTID}.live.dynatrace.com/"
