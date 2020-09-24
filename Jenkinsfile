@@ -92,6 +92,15 @@ pipeline {
 
         }
 
+        stage('warmup the application')
+        {
+            steps{
+                script{
+                    sh "curl http://localhost:8082"
+                }
+            }
+        }
+
         stage('Start NeoLoad infrastructure') {
 
                            steps {
