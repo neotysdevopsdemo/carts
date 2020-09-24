@@ -95,6 +95,7 @@ pipeline {
         stage('warmup the application')
         {
             steps{
+                sleep 20
                 script{
                     sh "curl http://localhost:8082"
                 }
