@@ -132,9 +132,7 @@ pipeline {
 
                              sh '''
                                   export PATH=~/.local/bin:$PATH
-                                  pip install --upgrade pip
-                                  pip install libxml2
-                                  pip install libxslt
+                                  sudo apt-get install libxml2-dev libxslt-dev python-dev
                                   pip3 install neoload
                                   neoload --version
                               '''
