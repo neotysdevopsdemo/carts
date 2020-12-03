@@ -120,7 +120,7 @@ pipeline {
         {
          agent {
          docker {
-             image 'python:3-alpine'
+             image 'python:3.7-alpine'
              reuseNode true
           }
 
@@ -133,7 +133,6 @@ pipeline {
                              sh '''
                                   export PATH=~/.local/bin:$PATH
                                   apk add -q gcc musl-dev python3-dev curl && \
-                                  python3 -m pip install -q --upgrade pip
                                   pip3 install certifi
                                   pip3 install neoload
                                   neoload --version
