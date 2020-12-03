@@ -132,7 +132,8 @@ pipeline {
 
                              sh '''
                                   export PATH=~/.local/bin:$PATH
-                                  apt-get install libxml2-dev libxslt-dev python-dev
+                                  apk add -q gcc musl-dev python3-dev curl && \
+                                  python3 -m pip install -q --upgrade pip
                                   pip3 install certifi
                                   pip3 install neoload
                                   neoload --version
