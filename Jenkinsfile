@@ -133,8 +133,8 @@ pipeline {
                              sh '''
                                   export PATH=~/.local/bin:$PATH
                                   pip install --upgrade pip
-                                  pip3 install libxml2
-                                  pip3 install libxslt
+                                  pip install libxml2
+                                  pip install libxslt
                                   pip3 install neoload
                                   neoload --version
                               '''
