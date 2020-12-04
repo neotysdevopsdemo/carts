@@ -132,8 +132,6 @@ pipeline {
 
                              sh '''
                                   export PATH=~/.local/bin:$PATH
-                                  apk add -q gcc musl-dev python3-dev curl && \
-                                  pip3 install certifi
                                   pip3 install neoload
                                   neoload --version
                               '''
