@@ -40,11 +40,7 @@ public class CartsLoadTest extends NeoLoadTest {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        try {
-            createSimpleConstantIterationScenario("DynatraceSanityCheck","BasicCheckTesting",5,1,0,Optional.empty());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+
 
     }
 }

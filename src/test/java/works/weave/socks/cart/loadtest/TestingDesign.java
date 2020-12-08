@@ -18,7 +18,6 @@ public class TestingDesign extends BaseNeoLoadDesign {
 
     @java.lang.Override
     public void createNeoLoadUserPaths() {
-        this.addVirtualUser(new BasicUserPath(this));
         this.addVirtualUser(new AddItemUserPath(this));
 
     }
