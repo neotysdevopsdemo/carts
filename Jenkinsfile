@@ -230,7 +230,7 @@ pipeline {
                sh 'docker-compose -f $WORKSPACE/docker-compose.yml down'
                  sh 'docker-compose -f  ${DOCKER_COMPOSE_LG_FILE}  down'
 
-                  cleanWs()
+
                 sh 'docker volume prune'
         }
 
